@@ -1,8 +1,11 @@
 package schemaloader
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/fs"
+	"time"
 
 	"github.com/grafana/grafana"
 	"github.com/grafana/grafana/pkg/components/simplejson"
@@ -38,6 +41,26 @@ type SchemaLoaderService struct {
 	log        log.Logger
 	DashFamily schema.VersionedCueSchema
 	Cfg        *setting.Cfg `inject:""`
+}
+
+func (rs *SchemaLoaderService) loadNewPanelPlugin(name, content string) error {
+	if !fs.ValidPath(name) {
+		return &fs.PathError{
+			Op:   "write",
+			Path: name,
+			Err:  fs.ErrInvalid,
+		}
+	}
+
+	f := &fs.file{
+		name:    name,
+		content: bytes.NewBufferString(content),
+		modTime: time.Now(),
+	}
+
+	fsys.files[name] = f
+
+	return nil
 }
 
 func (rs *SchemaLoaderService) Init() error {

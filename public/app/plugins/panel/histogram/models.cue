@@ -9,7 +9,6 @@ Family: {
                     bucketOffset: int | *0
                     combine?: bool
                 }
-
                 // TODO: FieldConfig
             }
         ]
